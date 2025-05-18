@@ -300,8 +300,8 @@ export namespace PavingTextureUtil {
       ctx.canvas.width,
       ctx.canvas.height,
       imageAspectRatio,
-      2,
-      2
+      3,
+      3
     );
 
     for (
