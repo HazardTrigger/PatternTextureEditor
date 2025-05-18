@@ -22,8 +22,8 @@ type Props = {
   setBrickImages: React.Dispatch<React.SetStateAction<HTMLImageElement[]>>;
   currentPattern: number;
   setCurrentPattern: React.Dispatch<React.SetStateAction<number>>;
-  repeat: number;
-  setRepeat: React.Dispatch<React.SetStateAction<number>>;
+  repeat?: number;
+  setRepeat?: React.Dispatch<React.SetStateAction<number>>;
 };
 
 const Controls: React.FC<Props> = (props) => {
@@ -49,14 +49,12 @@ const Controls: React.FC<Props> = (props) => {
     setBrickImages,
     currentPattern,
     setCurrentPattern,
-    repeat,
-    setRepeat,
   } = props;
 
   const [imageSize, setImageSize] = useState({ width: 0, height: 0 });
 
   const resetBrickTransform = () => {
-    setGapWidth(0);
+    setGapWidth(1);
     setOffsetX(0);
     setOffsetY(0);
     setRotation(0);
@@ -74,7 +72,7 @@ const Controls: React.FC<Props> = (props) => {
       <div className="control-group">
         <h3>模式选择</h3>
         <button
-          className={`pattern-btn ${currentPattern === 0 ? 'active' : ''}`}
+          className={`pattern-btn ${currentPattern === 0 ? "active" : ""}`}
           data-pattern="running"
           onClick={() => {
             setCurrentPattern(0);
@@ -83,7 +81,7 @@ const Controls: React.FC<Props> = (props) => {
           无缝模式
         </button>
         <button
-          className={`pattern-btn ${currentPattern === 1 ? 'active' : ''}`}
+          className={`pattern-btn ${currentPattern === 1 ? "active" : ""}`}
           data-pattern="grid"
           onClick={() => {
             setCurrentPattern(1);
@@ -92,7 +90,7 @@ const Controls: React.FC<Props> = (props) => {
           网格模式
         </button>
         <button
-          className={`pattern-btn ${currentPattern === 2 ? 'active' : ''}`}
+          className={`pattern-btn ${currentPattern === 2 ? "active" : ""}`}
           data-pattern="running"
           onClick={() => {
             setCurrentPattern(2);
@@ -101,7 +99,7 @@ const Controls: React.FC<Props> = (props) => {
           工字模式
         </button>
         <button
-          className={`pattern-btn ${currentPattern === 3 ? 'active' : ''}`}
+          className={`pattern-btn ${currentPattern === 3 ? "active" : ""}`}
           data-pattern="third"
           onClick={() => {
             setCurrentPattern(3);
@@ -261,7 +259,7 @@ const Controls: React.FC<Props> = (props) => {
 
       <div className="control-group">
         <h3>纹理控制</h3>
-        <div className="control-label">
+        {/* <div className="control-label">
           重复次数{" "}
           <span className="value-display" id="repeatValue">
             {repeat}
@@ -275,11 +273,11 @@ const Controls: React.FC<Props> = (props) => {
           step="1"
           value={repeat}
           onChange={(e) => {
-            setRepeat(+e.target.value);
+            setRepeat?.(+e.target.value);
           }}
         />
 
-        <div className="separator"></div>
+        <div className="separator"></div> */}
 
         <input
           type="file"

@@ -2,23 +2,21 @@ import React, { useEffect, useRef } from "react";
 import "./Preview.css";
 
 type Props = {
-  width: number;
-  height: number;
   textureCanvas: HTMLCanvasElement;
   brickImages: HTMLImageElement[];
-  updatedTextureCanvas: number
+  updatedTextureCanvas: number;
 };
 
 const Preview: React.FC<Props> = (props) => {
   const previewCanvasRef = useRef<HTMLCanvasElement | null>(null);
 
-  const { width, height, textureCanvas, brickImages, updatedTextureCanvas } = props;
+  const { textureCanvas, brickImages, updatedTextureCanvas } = props;
 
   const updatePreview = () => {
     const ctx = previewCanvasRef.current?.getContext("2d");
     if (!ctx) return;
 
-    ctx.clearRect(0, 0, width, height);
+    ctx.clearRect(0, 0, textureCanvas.width, textureCanvas.height);
     ctx.drawImage(textureCanvas, 0, 0);
   };
 
@@ -34,8 +32,8 @@ const Preview: React.FC<Props> = (props) => {
           <canvas
             ref={previewCanvasRef}
             id="texturePreview"
-            width={width}
-            height={height}
+            width={textureCanvas.width}
+            height={textureCanvas.height}
           ></canvas>
         }
       </div>

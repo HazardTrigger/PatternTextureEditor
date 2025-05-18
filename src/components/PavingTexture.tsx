@@ -18,21 +18,28 @@ import Preview from "./Preview/Preview";
 import { PavingTextureUtil } from "./utils/pavingTexture.util";
 import { OrbitControls } from "three/examples/jsm/Addons.js";
 
-
 type Props = {};
 
-const textureCanvas = PavingTextureUtil.createTextureCanvas({
-  width: 256,
-  height: 256,
-});
-const texture = new CanvasTexture(textureCanvas);
+const camera = new PerspectiveCamera(
+  75,
+  window.innerWidth / window.innerHeight,
+  0.1,
+  1000
+);
 
 const PavingTexture: React.FC<Props> = (props) => {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
 
-  const [textureWidth, setTextureWidth] = useState(256);
-  const [textureHeight, setTextureHeight] = useState(256);
+  const [textureWidth, setTextureWidth] = useState(512);
+  const [textureHeight, setTextureHeight] = useState(512);
   const [brickImages, setBrickImages] = useState<HTMLImageElement[]>([]);
+  const [textureCanvas, setTextureCanvas] = useState(
+    PavingTextureUtil.createTextureCanvas({
+      width: textureWidth,
+      height: textureHeight,
+    })
+  );
+  const [texture, setTexture] = useState(new CanvasTexture(textureCanvas));
 
   const [currentPattern, setCurrentPattern] = useState(1);
   const [gapWidth, setGapWidth] = useState(1);
@@ -43,66 +50,45 @@ const PavingTexture: React.FC<Props> = (props) => {
   const [globalOffsetX, setGlobalOffsetX] = useState(0);
   const [globalOffsetY, setGlobalOffsetY] = useState(0);
   const [globalRotation, setGlobalRotation] = useState(0);
-  const [repeat, setRepeat] = useState(2);
   const [updatedTextureCanvas, setUpdatedTextureCanvas] = useState(
     performance.now()
   );
 
-  const updateTextureOption = useMemo<{
-    brickImage: HTMLImageElement[];
-    repeat: Vector2;
-    localOffsetX: number;
-    localOffsetY: number;
-    localRotation: number;
-    globalOffsetX: number;
-    globalOffsetY: number;
-    globalRotation: number;
-    alternateRotation: boolean;
-    gapWidth: number;
-    pattern: number;
-    uvCenter?: Vector2;
-  }>(() => {
-    return {
-      brickImage: brickImages,
-      repeat: new Vector2(repeat, repeat),
-      localOffsetX: offsetX,
-      localOffsetY: offsetY,
-      localRotation: rotation,
+  const updateTextureOption =
+    useMemo<PavingTextureUtil.PatternTextureOption>(() => {
+      return {
+        brickImage: brickImages,
+        localOffsetX: offsetX,
+        localOffsetY: offsetY,
+        localRotation: rotation,
+        globalOffsetX,
+        globalOffsetY,
+        globalRotation,
+        alternateRotation,
+        gapWidth: currentPattern !== 0 ? gapWidth : 0,
+        pattern: currentPattern,
+      };
+    }, [
+      brickImages,
+      offsetX,
+      offsetY,
+      rotation,
+      globalOffsetX,
+      globalOffsetY,
+      rotation,
       globalOffsetX,
       globalOffsetY,
       globalRotation,
       alternateRotation,
-      gapWidth: currentPattern !== 0 ? gapWidth : 0,
-      pattern: currentPattern,
-    };
-  }, [
-    brickImages,
-    offsetX,
-    offsetY,
-    rotation,
-    globalOffsetX,
-    globalOffsetY,
-    rotation,
-    globalOffsetX,
-    globalOffsetY,
-    globalRotation,
-    alternateRotation,
-    gapWidth,
-    currentPattern,
-    repeat,
-  ]);
+      gapWidth,
+      currentPattern,
+    ]);
 
   const initScene = (canvas: HTMLCanvasElement) => {
     const scene = new Scene();
     scene.background = new Color(0xcccccc);
-    scene.add(new AxesHelper(100));
+    scene.add(new AxesHelper(10));
 
-    const camera = new PerspectiveCamera(
-      75,
-      window.innerWidth / window.innerHeight,
-      0.1,
-      1000
-    );
     camera.position.z = 10;
 
     const renderer = new WebGLRenderer({ canvas, antialias: true });
@@ -145,6 +131,8 @@ const PavingTexture: React.FC<Props> = (props) => {
     PavingTextureUtil.updateTexture(
       texture,
       textureCanvas,
+      camera,
+      new Vector2(window.innerWidth, window.innerHeight),
       updateTextureOption
     );
 
@@ -184,12 +172,8 @@ const PavingTexture: React.FC<Props> = (props) => {
         setBrickImages={setBrickImages}
         currentPattern={currentPattern}
         setCurrentPattern={setCurrentPattern}
-        repeat={repeat}
-        setRepeat={setRepeat}
       />
       <Preview
-        width={textureWidth}
-        height={textureHeight}
         textureCanvas={textureCanvas}
         brickImages={brickImages}
         updatedTextureCanvas={updatedTextureCanvas}
