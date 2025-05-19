@@ -21,6 +21,8 @@ export namespace PavingTextureUtil {
     gapWidth: number;
     pattern: number;
     uvCenter?: Vector2;
+    worldWidth: number;
+    worldHeight: number;
   };
 
   export const createTextureCanvas = (option?: {
@@ -98,14 +100,12 @@ export namespace PavingTextureUtil {
       gapWidth: number;
     }
   ) => {
-    let {
+    const {
       localOffsetX = 0,
       localOffsetY = 0,
       localRotation = 0,
       gapWidth = 0,
     } = option;
-
-    gapWidth /= 2;
 
     const brickImage = brickImages[getRandomInt(0, brickImages.length)];
 
@@ -115,12 +115,12 @@ export namespace PavingTextureUtil {
     ctx.translate(0, ctx.canvas.height);
     ctx.scale(1, -1);
 
-    // 应用间隙和移动到砖块位置
-    ctx.translate(x + gapWidth, y + gapWidth);
+    // 移动到砖块位置
+    ctx.translate(x, y);
 
-    // 创建剪切区域
+    // 创建剪切区域，包括缝隙
     ctx.beginPath();
-    ctx.rect(0, 0, width - gapWidth, height - gapWidth);
+    ctx.rect(0, 0, width, height);
     ctx.clip();
 
     // 移动到砖块中心进行旋转
@@ -131,22 +131,32 @@ export namespace PavingTextureUtil {
     // 应用本地偏移
     const drawX = localOffsetX % width;
     const drawY = localOffsetY % height;
-    ctx.translate(drawX, drawY);
 
-    // 主要图案
-    ctx.drawImage(brickImage, 0, 0, width, height);
+    // 绘制函数
+    const drawTile = (offsetX: number, offsetY: number) => {
+      ctx.drawImage(
+        brickImage,
+        offsetX,
+        offsetY,
+        width - 2 * gapWidth,
+        height - 2 * gapWidth
+      );
+    };
 
-    // 边界重复绘制
-    ctx.drawImage(brickImage, -width, 0, width, height);
-    ctx.drawImage(brickImage, width, 0, width, height);
-    ctx.drawImage(brickImage, 0, -height, width, height);
-    ctx.drawImage(brickImage, 0, height, width, height);
+    // 绘制主要图案（四周留有缝隙）
+    drawTile(drawX + gapWidth, drawY + gapWidth);
 
-    // 角落重复绘制
-    ctx.drawImage(brickImage, -width, -height, width, height);
-    ctx.drawImage(brickImage, width, -height, width, height);
-    ctx.drawImage(brickImage, -width, height, width, height);
-    ctx.drawImage(brickImage, width, height, width, height);
+    // 绘制周围的重复图案以填充缝隙
+    drawTile(drawX + gapWidth - width, drawY + gapWidth);
+    drawTile(drawX + gapWidth + width, drawY + gapWidth);
+    drawTile(drawX + gapWidth, drawY + gapWidth - height);
+    drawTile(drawX + gapWidth, drawY + gapWidth + height);
+
+    // 绘制角落
+    drawTile(drawX + gapWidth - width, drawY + gapWidth - height);
+    drawTile(drawX + gapWidth + width, drawY + gapWidth - height);
+    drawTile(drawX + gapWidth - width, drawY + gapWidth + height);
+    drawTile(drawX + gapWidth + width, drawY + gapWidth + height);
 
     ctx.restore();
   };
@@ -186,7 +196,7 @@ export namespace PavingTextureUtil {
       row++
     ) {
       for (
-        let col = 0;
+        let col = -1;
         col <= Math.ceil(ctx.canvas.width / brickSize.width);
         col++
       ) {
@@ -415,6 +425,8 @@ export namespace PavingTextureUtil {
       pattern,
       brickImage,
       uvCenter,
+      worldHeight,
+      worldWidth,
     } = option;
 
     const imageAspectRatio =
@@ -431,16 +443,17 @@ export namespace PavingTextureUtil {
 
     const repeat = new Vector2(
       Math.ceil(
-        worldUnitToPixel(10, camera, rendererSize) / textureCanvas.width
+        worldUnitToPixel(worldWidth, camera, rendererSize) / textureCanvas.width
       ),
       Math.ceil(
-        worldUnitToPixel(10, camera, rendererSize) / textureCanvas.height
+        worldUnitToPixel(worldHeight, camera, rendererSize) /
+          textureCanvas.height
       )
     );
 
     const ctx = textureCanvas.getContext("2d")!;
 
-    ctx.fillStyle = "#000000";
+    ctx.fillStyle = "#191919";
     ctx.fillRect(0, 0, textureCanvas.width, textureCanvas.height);
 
     switch (pattern) {

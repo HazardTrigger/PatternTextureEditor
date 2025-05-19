@@ -67,6 +67,8 @@ const PavingTexture: React.FC<Props> = (props) => {
         alternateRotation,
         gapWidth: currentPattern !== 0 ? gapWidth : 0,
         pattern: currentPattern,
+        worldHeight: 10,
+        worldWidth: 10,
       };
     }, [
       brickImages,
