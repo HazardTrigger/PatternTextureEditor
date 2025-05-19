@@ -138,8 +138,8 @@ export namespace PavingTextureUtil {
         brickImage,
         offsetX,
         offsetY,
-        width - 2 * gapWidth,
-        height - 2 * gapWidth
+        width - gapWidth,
+        height - gapWidth
       );
     };
 
